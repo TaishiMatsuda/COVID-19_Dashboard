@@ -33,6 +33,7 @@ fig_age_outcome.update_layout(xaxis={'categoryorder':'category ascending'})
 
 # Load CSS Style
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 # Navigation Bar
 NAVBAR = dbc.Navbar(
@@ -66,13 +67,11 @@ TORONTO_CASE = dbc.Card(
                 children=[
                     dcc.Tab(
                         label="Age Group",
-                        children=[
-                            dcc.Graph(id='toronto_case_by_age'),
-                        ]
+                        children=[dcc.Graph(id='toronto_case_by_age'),]
                     ),
                     dcc.Tab(
                         label="Gender",
-                        children=[dcc.Graph(id="toronto_case_by_gender", figure=fig_gender)]
+                        children=[dcc.Graph(id="toronto_case_by_gender"),]
                     )
                 ]
             ),
@@ -122,12 +121,25 @@ app.layout = html.Div(children=[NAVBAR, BODY])
 @app.callback(
     Output('toronto_case_by_age', 'figure'),
     [Input('date-slider', 'value')])
-def update_figure(selected_date):
+def update_age_figure(selected_date):
     filtered_df = toronto_df[toronto_df.date_since_first_case <= selected_date]
 
     fig = px.histogram(filtered_df, x="age_group", y="outcome", histfunc="count")
 
-    fig.update_layout(transition_duration=500)
+    fig.update_layout(transition_duration=500, xaxis={'categoryorder':'category ascending'})
+
+    return fig
+
+
+@app.callback(
+    Output('toronto_case_by_gender', 'figure'),
+    [Input('date-slider', 'value')])
+def update_gender_figure(selected_date):
+    filtered_df = toronto_df[toronto_df.date_since_first_case <= selected_date]
+
+    fig = px.histogram(filtered_df, x="gender", y="outcome", histfunc="count")
+
+    fig.update_layout(transition_duration=500, xaxis={'categoryorder':'category ascending'})
 
     return fig
 
